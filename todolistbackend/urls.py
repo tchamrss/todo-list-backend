@@ -14,8 +14,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from todolist.views import LoginView, TodoItemView, UserRegistrationView,activate,LogoutView
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+    path('django-rq/', include('django_rq.urls')),
+    path('login/', LoginView.as_view()),
+    path('logout/', LogoutView.as_view()),
+    path('activate/<str:uidb64>/<str:token>/', activate, name='activate'),
+    path('todos/', TodoItemView.as_view()),
+    path('register/', UserRegistrationView.as_view()),
+] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

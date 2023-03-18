@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure--+t-a33aip@nfi%_o$j_)!-_kgx^68^cv_qx09&$lpf^utu2_0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+]
+SITE_ID = 2
+CORS_ALLOW_ALL_ORIGINS = ['http://localhost:4200',]
 
 
 # Application definition
@@ -37,11 +42,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'videoflix_app.apps.VideoflixAppConfig',
     'rest_framework',
+    'rest_framework.authtoken',
+    'django_rq',
     'todolist',
-]
+    'import_export',
+    'django.contrib.sites',
 
+]
+IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'russell.tchamba@gmail.com'
+EMAIL_HOST_PASSWORD = 'mofxzpbtgcizjmyz'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles') 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -71,7 +92,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'todolistbackend.wsgi.application'
 
-
+CACHE_TTL = 60 * 15
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
@@ -82,6 +103,28 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    "default":{
+        "BACKEND":"django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS":{
+            #"PASSWORD": "foobared",
+            "CLIENT_CLASS":"django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX":"videoflix"
+    }
+}
+
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        #'PASSWORD': 'foobared',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 360,
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -113,6 +156,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
@@ -123,3 +169,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
