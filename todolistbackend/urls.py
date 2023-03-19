@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from todolist.views import LoginView, TodoItemView, UserRegistrationView,activate,LogoutView
+from videoflix_app.views import LoginView, UserRegistrationView,activate,LogoutView
 from videoflix_app.views import VideoView
 from django.conf.urls.static import static
 from django.conf import settings
@@ -26,7 +26,7 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     path('logout/', LogoutView.as_view()),
     path('activate/<str:uidb64>/<str:token>/', activate, name='activate'),
-    path('todos/', TodoItemView.as_view()),
+    #path('todos/', TodoItemView.as_view()),
     path('videos/', VideoView.as_view()),
     path('register/', UserRegistrationView.as_view()),
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

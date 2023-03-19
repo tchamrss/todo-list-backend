@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_rq',
-    'todolist',
+    #'todolist',
     'import_export',
     'django.contrib.sites',
 
