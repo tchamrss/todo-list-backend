@@ -85,10 +85,7 @@ class LoginView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         User = get_user_model()
         userObj = User.objects.get(email=email)
-        #print(userObj)
-        print(userObj.username)
         user = authenticate(request=request, username=userObj.username, password=password)
-        print(user)
         if user is None:
             return Response({'error': 'Invalid email/password'},
                             status=status.HTTP_401_UNAUTHORIZED)
@@ -157,8 +154,7 @@ class UserRegistrationView(View):
         return JsonResponse({'message': 'Please check your email to activate your account'})
         #return JsonResponse({'token': token.key})
     
-def send_confirmation_email(request, user, Token):
-    print(Token)
+def send_confirmation_email(request, user, Token):    
     subject = 'Confirm your registration'
     message = render_to_string('auth/email_confirmation.html', {
         'user': user,
@@ -166,7 +162,6 @@ def send_confirmation_email(request, user, Token):
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': Token.key
     })
-    print(message)
     from_email = 'russell.tchamba@gmail.com'
     recipient_list = [user.email]
     send_mail(subject, message, from_email, recipient_list)
@@ -174,14 +169,12 @@ def send_confirmation_email(request, user, Token):
 
 def activate(request, uidb64, token):
     User = get_user_model()
-    print(token)
     try:
         # Decode the user ID and token from the URL
         uid = urlsafe_base64_decode(uidb64).decode()
         user = User.objects.get(pk=uid)        
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
-    print(uid)
     # Verify the token and activate the user
     if user is not None :
         user.is_active = True
