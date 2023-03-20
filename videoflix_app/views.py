@@ -158,7 +158,7 @@ def send_confirmation_email(request, user, Token):
     subject = 'Confirm your registration'
     message = render_to_string('auth/email_confirmation.html', {
         'user': user,
-        'domain': request.META['HTTP_HOST'],
+        'domain': 'videoflix.russell-tchamba.de',
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': Token.key
     })
