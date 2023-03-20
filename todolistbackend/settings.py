@@ -28,6 +28,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    '34.159.4.117',
+    'videoflix.russell-tchamba.de',
 ]
 SITE_ID = 2
 CORS_ALLOW_ALL_ORIGINS = ['http://localhost:4200',]
