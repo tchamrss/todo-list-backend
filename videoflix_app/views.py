@@ -84,11 +84,12 @@ class LoginView(APIView):
             return Response({'error': 'Please provide both email and password'},
                             status=status.HTTP_400_BAD_REQUEST)
         User = get_user_model()
+        if not User.objects.filter(email=email).exists():
+            return JsonResponse({'error': 'Sorry we can not find an account with this email address. Please try again or create a new account'})
         userObj = User.objects.get(email=email)
         user = authenticate(request=request, username=userObj.username, password=password)
         if user is None:
-            return Response({'error': 'Invalid email/password'},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            return JsonResponse({'error': 'Incorrect password. Please try again or you can reset your password'})
         if not user.is_active:
             return JsonResponse({'error': 'Please activate your account'})
         token, created = Token.objects.get_or_create(user=user)
@@ -158,7 +159,7 @@ def send_confirmation_email(request, user, Token):
     subject = 'Confirm your registration'
     message = render_to_string('auth/email_confirmation.html', {
         'user': user,
-        'domain': 'videoflix.russell-tchamba.de',
+        'domain':request.META.get('HTTPS_HOST', settings.DOMAIN_NAME),
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': Token.key
     })

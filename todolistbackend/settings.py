@@ -29,6 +29,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '34.159.4.117',
+    '34.141.25.33',
     'videoflix.russell-tchamba.de',
 ]
 SITE_ID = 2
@@ -54,7 +55,8 @@ INSTALLED_APPS = [
 
 ]
 IMPORT_EXPORT_USE_TRANSACTIONS = True
-
+APPEND_SLASH = False
+DOMAIN_NAME = 'https://videoflix.russell-tchamba.de'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
