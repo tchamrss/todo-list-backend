@@ -29,7 +29,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '34.159.4.117',
-    '34.141.25.33',
+    '34.159.110.17',
     'videoflix.russell-tchamba.de',
 ]
 SITE_ID = 2
@@ -100,10 +100,23 @@ CACHE_TTL = 60 * 15
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
+""" DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+} """
+
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'video',
+        'USER': 'postgres',
+        'PASSWORD': 'Baffoussam',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

@@ -85,13 +85,19 @@ class LoginView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         User = get_user_model()
         if not User.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'Sorry we can not find an account with this email address. Please try again or create a new account'})
+            #return JsonResponse({'error': 'Sorry we can not find an account with this email address. Please try again or create a new account'})
+            return Response({'error': 'Sorry we can not find an account with this email address. Please try again or create a new account'},
+                            status=status.HTTP_400_BAD_REQUEST)
         userObj = User.objects.get(email=email)
         user = authenticate(request=request, username=userObj.username, password=password)
         if user is None:
-            return JsonResponse({'error': 'Incorrect password. Please try again or you can reset your password'})
+            #return JsonResponse({'error': 'Incorrect password. Please try again or you can reset your password'})
+            return Response({'error': 'Incorrect password. Please try again or you can reset your password'},
+                            status=status.HTTP_400_BAD_REQUEST)
         if not user.is_active:
-            return JsonResponse({'error': 'Please activate your account'})
+            #return JsonResponse({'error': 'Please activate your account'})
+            return Response({'error': 'Please activate your account'},
+                            status=status.HTTP_400_BAD_REQUEST)
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
@@ -143,9 +149,13 @@ class UserRegistrationView(View):
         email = data.get('email')
         password = data.get('password')
         if not username or not email or not password:
-            return JsonResponse({'error': 'Please provide all the required fields'})
+            #return JsonResponse({'error': 'Please provide all the required fields'})
+            return Response({'error': 'Please provide all the required fields'},
+                            status=status.HTTP_400_BAD_REQUEST)
         if User.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'User with this email already exists.'})
+            #return JsonResponse({'error': 'User with this email already exists.'})
+            return Response({'error': 'User with this email already exists.'},
+                            status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.create_user(username=username, email=email, password=password)
         user.is_active = False
         user.save()
