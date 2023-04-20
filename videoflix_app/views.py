@@ -3,12 +3,12 @@ from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
 from rest_framework.views import APIView
+from videoflix_app.utils import activateUserandCreateToken, checkUserRegistration
 from videoflix_app.serializers import VideoSerializer
 from videoflix_app.models import Video
 from rest_framework import authentication, permissions
 from rest_framework.response import Response
-
-
+from videoflix_app.utils import get_or_create_token, checkUser, get_user
 from django.urls import reverse
 from django.views import View
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -67,26 +67,7 @@ class LoginView(APIView):
             'email': user.email
         })
 
-def get_user(email, password):
-    User = get_user_model()
-    if not User.objects.filter(email=email).exists():
-        return None
-    user_obj = User.objects.get(email=email)
-    user = authenticate(username=user_obj.username, password=password)
-    return user
 
-def get_or_create_token(user):
-    token, created = Token.objects.get_or_create(user=user)
-    return token
-
-def checkUser(user):
-    if user is None:
-        return Response({'error': 'Incorrect email or password. Please try again or reset your password.'},
-                        status=status.HTTP_400_BAD_REQUEST)
-    if not user.is_active:
-        return Response({'error': 'Please activate your account.'},
-                        status=status.HTTP_400_BAD_REQUEST)
-    return None
 
 class LogoutView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
@@ -129,22 +110,6 @@ class UserRegistrationView(View):
         send_confirmation_email(request, user, token)        
         return JsonResponse({'message': 'Please check your email to activate your account'})
 
-
-def activateUserandCreateToken(username, email, password, User):
-    user = User.objects.create_user(username=username, email=email, password=password)
-    user.is_active = False
-    user.save()
-    token = Token.objects.create(user=user)
-    return user, token
-
-def checkUserRegistration(username, email, password, User):
-    if not username or not email or not password:
-            return JsonResponse({'error': 'Please provide all the required fields'},
-                            status=status.HTTP_400_BAD_REQUEST)
-    if User.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'User with this email already exists.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-    return None
 
     
 def send_confirmation_email(request, user, Token):  
