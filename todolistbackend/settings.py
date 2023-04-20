@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
+import collections
+collections.Callable = collections.abc.Callable
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'videoflix_app.apps.VideoflixAppConfig',
     'rest_framework',
+    'django_nose',
     'rest_framework.authtoken',
     'django_rq',
     #'todolist',
@@ -56,7 +59,8 @@ INSTALLED_APPS = [
 ]
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 APPEND_SLASH = False
-DOMAIN_NAME = 'https://videoflix.russell-tchamba.de'
+#DOMAIN_NAME = 'https://videoflix.russell-tchamba.de'
+DOMAIN_NAME = 'http:/127.0.0.1:8000'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -107,6 +111,13 @@ CACHE_TTL = 60 * 15
     }
 } """
 
+
+# Tell nose to measure coverage on the 'foo' and 'bar' apps
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=videoflix_app',
+    '--cover-html',
+]
 
 
 DATABASES = {
@@ -194,3 +205,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ]
 }
+
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+

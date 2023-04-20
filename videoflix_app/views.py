@@ -13,8 +13,6 @@ from django.urls import reverse
 from django.views import View
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-""" from todolist.serializers import TodoItemSerializer
-from todolist.models import TodoItem """
 from django.contrib.auth import get_user_model,authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -35,10 +33,6 @@ CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 # Create your views here.
 #@cache_page(CACHE_TTL)
 
-""" from videoflix_app.admin import VideoResource
-dataset = VideoResource().export()
-dataset.json """
-
 class VideoView(APIView):
 
     authentication_classes = [authentication.TokenAuthentication]
@@ -46,95 +40,72 @@ class VideoView(APIView):
 
     def get(self, request, format=None):
         """
-        Return a list of all todos.
+        Return a list of all Videos.
         """
         videos = Video.objects.all()
         serializer = VideoSerializer(videos, many=True)
         return Response(serializer.data)
-    
-    
 
 # Create your views here.
-
-""" class LoginView(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
-        User = get_user_model()
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        uid = user.pk
-        userObj = User.objects.get(pk=uid) 
-        if not userObj.is_active:
-            return JsonResponse({'error': 'Please activate your account'})           
-        else:
-            token, created = Token.objects.get_or_create(user=user)    
-            return Response({
-                'token': token.key,
-                'user_id': user.pk,
-                'email': user.email
-            }) """
-
-
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
+        """
+        Return the user informations when the validation is correct.
+        """
         email = request.data.get("email")
         password = request.data.get("password")
         if email is None or password is None:
-            return Response({'error': 'Please provide both email and password'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        User = get_user_model()
-        if not User.objects.filter(email=email).exists():
-            #return JsonResponse({'error': 'Sorry we can not find an account with this email address. Please try again or create a new account'})
-            return Response({'error': 'Sorry we can not find an account with this email address. Please try again or create a new account'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        userObj = User.objects.get(email=email)
-        user = authenticate(request=request, username=userObj.username, password=password)
-        if user is None:
-            #return JsonResponse({'error': 'Incorrect password. Please try again or you can reset your password'})
-            return Response({'error': 'Incorrect password. Please try again or you can reset your password'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if not user.is_active:
-            #return JsonResponse({'error': 'Please activate your account'})
-            return Response({'error': 'Please activate your account'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        token, created = Token.objects.get_or_create(user=user)
+            return Response({'error': 'Please provide both email and password'},status=status.HTTP_400_BAD_REQUEST)
+        user = get_user(email, password)
+        response = checkUser(user)
+        if response is not None:
+            return response
+        token = get_or_create_token(user)
         return Response({
             'token': token.key,
             'user_id': user.pk,
             'email': user.email
-        })     
+        })
+
+def get_user(email, password):
+    User = get_user_model()
+    if not User.objects.filter(email=email).exists():
+        return None
+    user_obj = User.objects.get(email=email)
+    user = authenticate(username=user_obj.username, password=password)
+    return user
+
+def get_or_create_token(user):
+    token, created = Token.objects.get_or_create(user=user)
+    return token
+
+def checkUser(user):
+    if user is None:
+        return Response({'error': 'Incorrect email or password. Please try again or reset your password.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    if not user.is_active:
+        return Response({'error': 'Please activate your account.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    return None
 
 class LogoutView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     def post(self, request):
+        """
+        log out the user and delete the token.
+        """
         # Überprüfen Sie, ob der Benutzer authentifiziert ist und ein gültiges Token hat
         if request.auth:
             # Holen Sie sich das Token des Benutzers aus der Anfrage
             token = request.auth
-
             # Löschen Sie das Token des Benutzers
             token.delete()
-
             # Geben Sie eine Antwort zurück
             return Response({"message": "Logout erfolgreich"})
         else:
             # Wenn der Benutzer nicht authentifiziert ist oder kein gültiges Token hat, geben Sie eine Fehlermeldung zurück
             return Response({"error": "Benutzer nicht authentifiziert"}, status=status.HTTP_401_UNAUTHORIZED)
-
-""" class TodoItemView(APIView):
-
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request, format=None):
-        
-        #Return a list of all todos.
-        
-        todos = TodoItem.objects.filter(author=request.user)
-        serializer = TodoItemSerializer(todos, many=True)
-        return Response(serializer.data) """
     
 
 class UserRegistrationView(View):
@@ -143,29 +114,43 @@ class UserRegistrationView(View):
         return super(UserRegistrationView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
+        """
+        create a new user if not existing.
+        """
         User = get_user_model()
         data = json.loads(request.body)
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
-        if not username or not email or not password:
-            #return JsonResponse({'error': 'Please provide all the required fields'})
-            return Response({'error': 'Please provide all the required fields'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if User.objects.filter(email=email).exists():
-            #return JsonResponse({'error': 'User with this email already exists.'})
-            return Response({'error': 'User with this email already exists.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        user = User.objects.create_user(username=username, email=email, password=password)
-        user.is_active = False
-        user.save()
-        token = Token.objects.create(user=user)
-        send_confirmation_email(request, user, token)
-        
+        response = checkUserRegistration(username, email, password, User)
+        if response is not None:
+            return response       
+        user, token = activateUserandCreateToken(username, email, password, User)        
+        send_confirmation_email(request, user, token)        
         return JsonResponse({'message': 'Please check your email to activate your account'})
-        #return JsonResponse({'token': token.key})
+
+
+def activateUserandCreateToken(username, email, password, User):
+    user = User.objects.create_user(username=username, email=email, password=password)
+    user.is_active = False
+    user.save()
+    token = Token.objects.create(user=user)
+    return user, token
+
+def checkUserRegistration(username, email, password, User):
+    if not username or not email or not password:
+            return JsonResponse({'error': 'Please provide all the required fields'},
+                            status=status.HTTP_400_BAD_REQUEST)
+    if User.objects.filter(email=email).exists():
+            return JsonResponse({'error': 'User with this email already exists.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+    return None
+
     
-def send_confirmation_email(request, user, Token):    
+def send_confirmation_email(request, user, Token):  
+    """
+        send the confirmation mail for activation.
+    """  
     subject = 'Confirm your registration'
     message = render_to_string('auth/email_confirmation.html', {
         'user': user,
@@ -179,6 +164,9 @@ def send_confirmation_email(request, user, Token):
 
 
 def activate(request, uidb64, token):
+    """
+        send an activation confirmation when clicking on the link in the email.
+    """  
     User = get_user_model()
     try:
         # Decode the user ID and token from the URL
