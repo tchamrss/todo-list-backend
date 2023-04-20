@@ -234,21 +234,6 @@ class VideoAdminTest(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertTrue(Video.objects.filter(title='Test Video').exists())
 
-    """ def test_video_admin_change_video(self):
-        data = {
-            'title': 'Test video updated',
-            'description': 'Test video updated description',
-            'playtime': '00:15:00'
-        }
-        request = self.factory.post(f'/admin/videoflix_app/video/{self.video.pk}/change/', data)
-        request.user = self.user
-        response = self.video_admin.change_view(request, self.video.pk)
-        self.assertEqual(response.status_code, 403)
-        self.video.refresh_from_db()
-        self.assertEqual(self.video.title, 'Test video updated')
-        self.assertEqual(self.video.description, 'Test video updated description')
-        self.assertEqual(self.video.playtime, '00:15:00') """
-
     def test_video_admin_delete_video(self):
         request = self.factory.post(f'/admin/videoflix_app/video/{self.video.pk}/delete/', {'post': 'yes'})
         request.user = self.user
