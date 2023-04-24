@@ -59,8 +59,8 @@ INSTALLED_APPS = [
 ]
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 APPEND_SLASH = False
-DOMAIN_NAME = 'https://videoflix.russell-tchamba.de'
-#DOMAIN_NAME = 'http:/127.0.0.1:8000'
+#DOMAIN_NAME = 'https://videoflix.russell-tchamba.de'
+DOMAIN_NAME = 'http:/127.0.0.1:8000'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
