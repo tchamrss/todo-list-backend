@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
@@ -19,6 +19,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.http import JsonResponse
 import json
+import os
 from rest_framework import status
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -27,6 +28,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
+from  videoflix_app.tasks import convert_480p, convert_720p, convert_1080p
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
@@ -42,10 +44,12 @@ class VideoView(APIView):
         """
         Return a list of all Videos.
         """
+        print(Video.objects.latest)
         videos = Video.objects.all()
         serializer = VideoSerializer(videos, many=True)
         return Response(serializer.data)
-
+    
+    
 # Create your views here.
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):

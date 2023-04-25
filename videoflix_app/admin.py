@@ -7,8 +7,8 @@ from import_export.admin import ImportExportModelAdmin
 #admin.site.register(Video)
 # Register your models here.
 class VideoAdmin(ImportExportModelAdmin):
-    fields = ('title','description', 'created_at', 'video_file', 'genres','playtime','picture', 'likes') 
-    list_display = ('title','description', 'genres','playtime','picture', 'likes')
+    fields = ('title','description', 'created_at', 'video_file_480p', 'video_file_720p', 'video_file_1080p', 'genres','playtime','picture', 'likes') 
+    list_display = ('title','description', 'genres','playtime','picture', 'likes', 'video_file_480p', 'video_file_720p', 'video_file_1080p')
     search_fields = ('title',)
 class VideoResource(resources.ModelResource):
 
