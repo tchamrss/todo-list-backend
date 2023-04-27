@@ -19,7 +19,7 @@ def get_or_create_token(user):
 
 def checkUser(user):
     if user is None:
-        return Response({'error': 'Incorrect email or password. Please try again or reset your password.'},
+        return Response({'error': 'Incorrect email or password. Please try again.'},
                         status=status.HTTP_400_BAD_REQUEST)
     if not user.is_active:
         return Response({'error': 'Please activate your account.'},
