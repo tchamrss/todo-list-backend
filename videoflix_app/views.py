@@ -147,6 +147,6 @@ def activate(request, uidb64, token):
     if user is not None :
         user.is_active = True
         user.save()
-        return HttpResponse('Thank you for your email confirmation. Now you can login to your account.')
+        return HttpResponse('Thank you for your email confirmation. Now you can login to your account. please click https://movies.russell-tchamba.de/')
     else:
         return HttpResponse('Activation link is invalid or has expired.')
